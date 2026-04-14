@@ -7,6 +7,7 @@ import db from "@/db/index";
 import { articles } from "@/db/schema";
 import { ensureUserExists } from "@/db/sync-user";
 import { stackServerApp } from "@/stack/server";
+import redis from "@/cache";
 
 // Server actions for articles (stubs)
 // TODO: Replace with real database operations when ready
@@ -45,6 +46,8 @@ export async function createArticle(data: CreateArticleInput) {
       imageUrl: data.imageUrl || undefined,
     })
     .returning({ id: articles.id });
+
+  redis.del("articles:all");
 
   const articleId = response[0]?.id;
   return { success: true, message: "Article create logged", id: articleId };
